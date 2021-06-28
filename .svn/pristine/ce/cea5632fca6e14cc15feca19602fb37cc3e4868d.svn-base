@@ -1,0 +1,3 @@
+<?php
+
+echo 'vous n\'avez pas la permission d\'acceder à l\'url';

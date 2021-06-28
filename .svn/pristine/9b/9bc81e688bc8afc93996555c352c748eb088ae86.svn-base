@@ -1,0 +1,43 @@
+<html lang="fr">
+
+<head>
+
+</head>
+
+<body>
+    <div class="container">
+    <div class="row  col-md-9 col-md-offset-1 custyle ">
+    <table class="table table-striped custab ">
+    <thead>
+    <a href="#" class="btn btn-primary btn-xs pull-right"><b>+</b> Add new categories</a>
+        <tr>
+            <tr>
+                <th>Id User</th>
+                <th>Pseudo</th>
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Mail</th>
+                <th>Numero de Telephone</th>
+                <th >Action</th>
+        </tr>
+    </thead>
+       <?php
+       foreach ($StudentList as $Student){
+           
+            echo'<br>';
+            echo'<tr>';
+            echo '<td>'.$Student->iduser."      </td>";
+            echo '<td>'.$Student->pseudo."      </td>";
+            echo '<td>'.$Student->nom."      </td>";
+            echo '<td>'.$Student->prenom."      </td>";
+            echo '<td>'.$Student->mail."      </td>";
+            echo '<td>'.$Student->tel."      </td>";
+            echo '<td class="text-center" width="30px"><a href="#" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span> Del</a></td>
+        ';
+            echo '</tr>';
+            
+            }?>        
+        
+    </table>
+    </body>
+    </HTML>

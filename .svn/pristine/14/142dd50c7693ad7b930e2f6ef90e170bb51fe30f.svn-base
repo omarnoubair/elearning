@@ -1,0 +1,20 @@
+  <div class="navbar navbar-fixed-top navbar-inverse">
+            <div class="container">
+                <div class="container"><div class="navbar-header"><a class="navbar-brand">Plateforme de sondages</a></div>
+            <div class="collapse navbar-collapse">
+                        <ul class="nav pull-right navbar-nav">
+                            <li>  <?php echo $this->session->checkAdmin()?></li>
+                            <li class=""><a>Bonjour <?php echo ( $this->session->read('user')->pseudo)?></a></li>
+                              <li class="divider-vertical"></li>
+                            <li class=""> <a class="" href="<?php echo BASE_URL.'/user/logoutAction'?>">Se déconnecter</a></li>
+
+                            <li class="divider-vertical"></li>
+                            <li class=""> <a class="" href="<?php echo BASE_URL.'/index'?>">Accueil</a></li>
+                            <li class="divider-vertical"></li>
+                            <li class=""> <a class="" href="<?php echo BASE_URL.'/user/index'?>">Mon Espace</a></li>
+                         
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>

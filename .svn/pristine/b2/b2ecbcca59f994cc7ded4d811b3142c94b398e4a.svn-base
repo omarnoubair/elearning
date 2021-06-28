@@ -1,0 +1,49 @@
+    <div class="col-sm-9 col-md-9">
+            <div class="well">
+                 <?php echo ( $this->session->getNotification());?>
+                <h1> Changer Votre Mot de passe</h1>
+
+
+        
+            <form class="form-horizontal" id="changepswd" method="post" action="<?php echo BASE_URL."/user/changePasswordAction"?>">
+                  <fieldset>
+
+                  
+
+                    
+
+                    <div class="form-group">
+                        <label class="control-label">Votre nouveaux mot de passe</label>
+                        <div class="controls">
+                            <input type="password" class="input-xlarge form-control" id="password" name="password" rel="popover">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label">Confirmer votre mot de passe</label>
+                        <div class="controls">
+                            <input type="password" class="input-xlarge form-control" id="cpassword" name="cpassword" rel="popover">
+                        </div>
+                    </div>
+                
+
+
+                    <div class="form-group">
+                        <label class="control-label"></label>
+                        <div class="controls">
+                            <button type="submit" class="btn btn-success" name="changeOk" value="test">Changer le mot de passe</button>
+                        </div>
+                    </div>
+
+
+
+            </form>
+    
+                    </div>
+        </div>
+
+            </div>
+        </div>
+  
+</div>
+    </div>

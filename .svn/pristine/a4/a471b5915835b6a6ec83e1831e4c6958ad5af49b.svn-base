@@ -1,0 +1,30 @@
+<?php
+class AdministrationController extends Controller {
+   
+     public function __construct()
+        {
+        parent::__construct();
+        $this->view = new view();
+       }
+    
+    public function index() {
+        if($this->session->read("isLoged")== true){
+            $this->view->renderView('administration' . DS . 'index'); // index c'est une vue
+        }  else {
+            $this->redirect('');
+        }
+    }
+    
+    public function manageProfs(){
+        
+    }
+    
+    public function manageStudents() {
+        
+    }
+    
+    public function manageCategories() {
+        
+    }
+
+}

@@ -1,0 +1,109 @@
+<?php
+class AdministrationController extends Controller {
+   
+     public function __construct()
+        {
+        parent::__construct();
+        $this->view = new view();
+       }
+    
+    public function index() {
+        if($this->session->read("isLoged")== true){
+            $this->view->renderView('administration' . DS . 'index'); // index c'est une vue
+        }  else {
+            $this->redirect('');
+        }
+    }
+    
+    public function manageProfs(){
+        
+    }
+    
+    public function manageStudents() {
+        
+    }
+    
+    public function manageCategories() {
+        
+    }
+
+    public function ListCategorie() {
+        $CategorieModel = $this->loadModel('categorie'); // charger le model
+        $CategorieList = $CategorieModel->find("*");
+        $this->view->set("CategorieList", $CategorieList);
+        $this->view->renderView('administration' . DS . 'CategorieList');
+    }
+
+    public function ListProfesseur() {
+        $UserModel = $this->loadModel('user'); // charger le model
+        $ProfesseurList = $UserModel->find(array(
+            'fields' => 'users.iduser, users.role , users.nom ,users.mdp ,users.prenom , users.mail, users.tel',
+            'conditions' => array("users.role" => 2)
+        ));
+        $this->view->set("ProfesseurList", $ProfesseurList);
+
+        $this->view->renderView('administration' . DS . 'ProfesseurList');
+    }
+
+    // toujours un probléme dans cette fonction 
+    public function ListReports() {
+        $ReportModel = $this->loadModel('report'); // charger le model
+        /* $CoursesList = $ReportModel->find(array(
+          'fields' => 'courses.titre as Titre, users.nom as Nom, count(reports.idcourse) as N ,users.mdp ,users.prenom , users.mail, users.tel',
+          'join' => array('courses' => 'reports.idcourse = courses.idcourse','users' => 'reports.iduser = users.iduser'),
+          //  'conditions'=>array("count(reports.idcourse)"=>3)
+          'group' => array(
+          'field' => 'courses.titre')
+          )); */
+        $CoursesList = $ReportModel->query("SELECT courses.titre as Titre , users.nom as Nom,"
+                . " count(Reports.idcourse ) as nombre FROM `users`,`reports`,`courses` where courses.idcourse ="
+                . " reports.idcourse and reports.iduser = users.iduser group by Reports.idcourse having nombre>1");
+        $this->view->set("CoursesList", $CoursesList);
+
+        $this->view->renderView('administration' . DS . 'ReportList');
+    }
+
+    // Ajouter un Professeur
+
+    public function AddProf() {
+        $this->view->renderView('administration' . DS . 'AddProf');
+    }
+
+    public function AddProfAction() {
+        print_r($_POST);
+        if (isset($_POST['ValiderBtn'])) {
+           
+            $userModel = $this->loadModel('user');
+            $first_name = !empty($_POST['PrenomText']) ? strtolower($_POST['PrenomText']) : $error[] = true.'Fnom';
+            $last_name = !empty($_POST['NomText']) ? strtolower($_POST['NomText']) : $error[] = true.'nom';
+            $pseudo = !empty($_POST['PseudoText']) ? strtolower($_POST['PseudoText']) : $error[] = true."pseudo";
+            $email = !empty($_POST['EmailText']) ? strtolower($_POST['EmailText']) : $error[] = true.'noddm';
+            $password = $this->generateRandomString(); // changer apres 
+            $telephone = !empty($_POST['telephoneText']) ? strtolower($_POST['telephoneText']) : $error[] = true.'nosssm';
+            $photo = empty($_POST['Photo']) ? strtolower($_POST['Photo']) : $error[] = true.'nomvv';
+            $checkEmail = $userModel->find(array('fields' => 'users.iduser', 'conditions' => array("users.mail" => $email)));
+            print_r($checkEmail);
+            $error[] = !empty($checkEmail) ? true : false;
+                print_r($error);
+            if (!in_array(true, $error)) {
+               
+                $userModel->save(array("iduser" => NULL, "role" => 2, "pseudo" => $pseudo, "password" => $password, "nom" => $last_name, "prenom" => $first_name, "mail" => $email, "tel" => $telephone, "photo" => $photo));
+                $this->session->setNotification("Votre compte à été bien crée", "success");
+                //         $this->redirect("user/login"); 
+            }
+        }
+        // $this->session->setNotification("Une ou plusieurs erreurs sont survenues lors de la création de votre compte","danger");
+        // $this->redirect("Administration"); 
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+}

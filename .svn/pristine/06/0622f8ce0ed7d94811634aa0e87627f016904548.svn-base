@@ -1,0 +1,121 @@
+<?php
+
+class AdministrationController extends Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function index() {
+        if ($this->session->read("isLoged") == true) {
+            $this->view->render('administration' . DS . 'index', true, true); // index c'est une vue
+        } else {
+            $this->redirect('');
+        }
+    }
+
+    public function manageCategories() {
+        $CategorieModel = $this->loadModel('categorie'); // charger le model
+        $CategorieList = $CategorieModel->find("*");
+        $this->view->set("CategorieList", $CategorieList);
+        $this->view->render('administration' . DS . 'CategorieList', true, true);
+    }
+
+    public function manageProfs() {
+        $UserModel = $this->loadModel('user'); // charger le model
+        $ProfesseurList = $UserModel->find(array(
+            'fields' => 'users.id, users.role , users.nom ,users.password ,users.prenom , users.mail, users.tel',
+            'conditions' => array("users.role" => 2)
+        ));
+        $this->view->set("ProfesseurList", $ProfesseurList);
+
+        $this->view->render('administration' . DS . 'ProfesseurList', true, true);
+    }
+
+    // toujours un probl�me dans cette fonction 
+    public function ListReports() {
+        $ReportModel = $this->loadModel('report'); // charger le model
+        $CoursesList = $ReportModel->query("SELECT courses.titre as Titre , users.nom as Nom,"
+                . " count(Reports.idcourse ) as nombre FROM `users`,`reports`,`courses` where courses.id ="
+                . " reports.idcourse and reports.iduser = users.id group by Reports.idcourse having nombre>1");
+        $this->view->set("CoursesList", $CoursesList);
+        $this->view->render('administration' . DS . 'ReportList', true, true);
+    }
+
+    // Ajouter un Professeur
+
+    public function addProf() {
+        $this->view->render('administration' . DS . 'addProf', true, true);
+    }
+
+    public function addProfAction() {
+        print_r($_POST);
+        if (isset($_POST['ValiderBtn'])) {
+
+            $userModel = $this->loadModel('user');
+            $first_name = !empty($_POST['PrenomText']) ? strtolower($_POST['PrenomText']) : $error[] = true . 'Fnom';
+            $last_name = !empty($_POST['NomText']) ? strtolower($_POST['NomText']) : $error[] = true . 'nom';
+            $pseudo = !empty($_POST['PseudoText']) ? strtolower($_POST['PseudoText']) : $error[] = true . "pseudo";
+            $email = !empty($_POST['EmailText']) ? strtolower($_POST['EmailText']) : $error[] = true . 'noddm';
+            $password = $this->generateRandomString(); // changer apres 
+            $telephone = !empty($_POST['telephoneText']) ? strtolower($_POST['telephoneText']) : $error[] = true . 'nosssm';
+            $photo = !empty($_POST['Photo']) ? strtolower($_POST['Photo']) : $error[] = true . 'nomvv';
+            $checkEmail = $userModel->find(array('fields' => 'users.id', 'conditions' => array("users.mail" => $email)));
+            print_r($checkEmail);
+            $error[] = !empty($checkEmail) ? true : false;
+            print_r($error);
+            if (!in_array(true, $error)) {
+
+                $userModel->save(array("id" => NULL, "role" => 2, "pseudo" => $pseudo, "password" => $password, "nom" => $last_name, "prenom" => $first_name, "mail" => $email, "tel" => $telephone, "photo" => $photo));
+                $this->session->setNotification("Votre compte � �t� bien cr�e", "success");
+                //$this->redirect("administration/manageProfs"); 
+                $this->view->render('administration' . DS . 'manageProfs', true, true);
+            }
+        }
+        // $this->session->setNotification("Une ou plusieurs erreurs sont survenues lors de la cr�ation de votre compte","danger");
+        // $this->redirect("Administration"); 
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    public function manageStudents() {
+        $UserModel = $this->loadModel('user'); // charger le model
+        $StudentList = $UserModel->find(array(
+            'fields' => 'users.id,users.pseudo, users.role , users.nom ,users.password ,users.prenom , users.mail, users.tel',
+            'conditions' => array("users.role" => 1)
+        ));
+        $this->view->set("StudentList", $StudentList);
+        $this->view->render('administration' . DS . 'StudentList', true, true);
+    }
+
+    public function deleteUser($id) {
+        if ($this->session->checkAdmin()) {
+            $userModel = $this->loadModel("user");
+            $users = $userModel->delete($id);
+            $this->session->setNotification("Votre requête a été traitée avec succès", "success");
+            $this->redirect("administration/manageStudents");
+        } else {
+            $this->redirect("error/error403");
+        }
+    }
+
+    public function deleteProf($id) {
+        if ($this->session->checkAdmin()) {
+            $userModel = $this->loadModel("user");
+            $users = $userModel->delete($id);
+            $this->session->setNotification("Votre requête a été traitée avec succès", "success");
+            $this->redirect("administration/manageProfs");
+        } else {
+            $this->redirect("error/error403");
+        }
+    }
+
+}

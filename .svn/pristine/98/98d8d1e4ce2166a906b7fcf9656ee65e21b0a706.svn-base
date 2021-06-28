@@ -1,0 +1,74 @@
+<?php
+
+class CourseController extends Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function createCourse() {
+        if ($this->session->checkLogin()) {
+            if ($this->session->checkProf()) {
+                // get Categories
+                $categorieModel = $this->loadModel("categorie");
+                $catList = $categorieModel->query("select * from categories");
+                $this->view->set("catList", $catList);
+
+                $this->view->render('course' . DS . 'createCourse', true, true);
+            }
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function createCourseAction() {
+
+
+        if ($this->session->checkLogin()) {
+            print_r($_POST);
+            $courseModel = $this->loadModel("course");
+            $titre = !empty($_POST['titre']) ? strtolower($_POST['titre']) : $error[] = true . 'NoTitre';
+            $categorie = !empty($_POST['categorie']) ? $_POST['categorie'] : $error[] = true . 'NoCategorie';
+            $description = !empty($_POST['description']) ? strtolower($_POST['description']) : $error[] = true . 'NoDescription';
+            $document = !empty($_POST['document']) ? $_POST['document'] : $error[] = true . 'noDocument';
+            $video = !empty($_POST['video']) ? $_POST['video'] : $error[] = true . 'NoVideo';
+            $niveau = !empty($_POST['niveau']) ? $_POST['niveau'] : $error[] = true . 'NoNiveau';
+
+            $idGenerated = $this->generateRandomString();
+
+            $courseModel->save(array("idcategorie" => $categorie, "idprof" => $this->session->user("id"),
+                "titre" => $titre, "description" => $description, "date" => date("Y/m/d"), "doc" => $idGenerated . $document,
+                "video" => $video, "lvl" => $niveau
+            ));
+            $this->redirect('user/index');
+        } else {
+
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function manageMyCourse() {
+        
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+//    public function courseList(){
+//        $courseModel = $this->loadModel("course");
+//        $courseList = $courseModel->find("*");
+//        $this->view->set("courseList", $courseList);
+//        $this->view->renderView('course' . DS . 'courseList'); // index c'est une vue
+//    }
+}
+
+?>

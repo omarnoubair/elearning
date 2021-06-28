@@ -1,0 +1,153 @@
+<div class="body-container">
+    <div class="admin-panel-container">
+
+
+        <div class="col-sm-3 col-md-3">
+            <div class="panel-group" id="accordion">
+
+                <?php if ($this->session->checkAdmin()) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><span class="glyphicon glyphicon-list-alt">
+                                    </span>Administration</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/administration/manageProfs' ?>">Gérer les professeurs</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/administration/manageStudents' ?>">Gérer les étudiants</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/administration/manageCategories' ?>">Gérer les catégories</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/administration/ListReports' ?>">Cours signalés</a>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <?php if ($this->session->checkProf()) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><span class="glyphicon glyphicon-book">
+                                    </span>Cours</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/course/createCourse' ?>">Ajouter cours</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/course/courseList' ?>">Gérer les cours</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><span class="glyphicon glyphicon-list-alt">
+                                    </span>Evaluation</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/evaluation/createEvaluation' ?>">Ajouter évaluation</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/evaluation/manageMyEvaluations' ?>">Gérer évaluation</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <?php if ($this->session->checkStudent()) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><span class="glyphicon glyphicon-book">
+                                    </span>Cours</a>
+                            </h4>
+                        </div>
+                        <div id="collapseOne" class="panel-collapse collapse in">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/course/courseAbonnee' ?>">Favoris</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/course/allcourse' ?>">Rechercher</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=" glyphicon glyphicon-cog text-primary"></span><a href="<?php echo BASE_URL . '/evaluation/historicEvaluation' ?>">Historique évaluations</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"><span class="glyphicon glyphicon-user">
+                                </span>Mon Compte</a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr>
+                                    <td>
+                                        <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/administration/manageProfs' ?>">Profil</a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <span class="glyphicon  glyphicon-plus text-primary"></span><a href="<?php echo BASE_URL . '/administration/manageProfs' ?>">Modifier compte</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>

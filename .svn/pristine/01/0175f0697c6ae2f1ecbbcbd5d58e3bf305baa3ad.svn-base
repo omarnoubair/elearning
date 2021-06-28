@@ -1,0 +1,24 @@
+
+<?php
+
+class IndexController extends Controller {
+   
+     public function __construct()
+        {
+        parent::__construct();
+        //$this->view = new view();
+       }
+    
+    public function index() {
+        
+        $this->view->setTitle("Learn Sharing");
+        require INCLUDES . DS . 'header.php';
+        require INCLUDES . DS . 'topbar.php';
+        $this->view->set("name","zakaria");
+        $this->view->set("email","zakaria@mail.fr");
+        //render : param1:view path
+        //$this->view->renderView('home' . DS . 'index'); // index c'est une vue
+        $this->view->render('home' . DS . 'index');
+    }
+
+}

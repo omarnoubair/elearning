@@ -1,0 +1,8 @@
+<?php
+
+echo '<pret>';
+foreach ($courseList as $cours){
+    echo $cours->titre . '<br>';
+}
+
+echo '</pret>';

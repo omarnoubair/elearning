@@ -1,0 +1,50 @@
+<html lang="fr">
+
+<head>
+
+    <title>Administration</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="../webroot/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="../webroot/css/Administration.css" rel="stylesheet">
+	
+    <!-- Custom Fonts -->
+    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+
+</head>
+
+<body>
+    <div class="container">
+    <div class="row  col-md-9 col-md-offset-1 custyle ">
+    <table class="table table-striped custab ">
+    <thead>
+    <a href="#" class="btn btn-primary btn-xs pull-right"><b>+</b> Add new categories</a>
+        <tr>
+            <tr>
+                <th>Id User</th>
+              
+                <th>Nom</th>
+                <th>Prenom</th>
+                <th>Mail</th>
+                <th>Numero de Telephone</th>
+                <th >Action</th>
+        </tr>
+    </thead>
+       <?php
+       foreach ($ProfesseurList as $Prof){
+            echo'<tr>';
+            echo '<td>'.$Prof->iduser."      </td>";
+            echo '<td>'.$Prof->nom."      </td>";
+            echo '<td>'.$Prof->prenom."      </td>";
+            echo '<td>'.$Prof->mail."      </td>";
+            echo '<td>'.$Prof->tel."      </td>";
+            echo '<td class="text-center" width="30px"><a href="#" class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span> Del</a></td>
+        ';
+            echo '</tr>';
+            }?>        
+        
+    </table>
+    </body>
+    </HTML>

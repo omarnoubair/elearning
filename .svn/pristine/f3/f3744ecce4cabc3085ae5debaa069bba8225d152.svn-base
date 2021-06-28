@@ -1,0 +1,38 @@
+<?php
+
+class EvaluationController extends controller {
+
+    public function __construct() {
+        parent::__construct();
+        $this->view = new view();
+    }
+
+    public function createEvaluation() {
+        if ($this->session->checkLogin()) {
+            $this->view->render('evaluation' . DS . 'createEvaluation', true, true);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function createEvaluationAction() {
+        if ($this->session->checkLogin()) {
+            if (isset($_POST['evaluationTitle']) && !empty($_POST['evaluationTitle'])) {
+                $evaluationModel = $this->loadModel("evaluation");
+                $evaluationModel->save(array("title" => ucfirst($_POST['evaluationTitle']), "user_id" => $this->session->user("id")));
+                $id = $evaluationModel->getId();
+                $this->view->set("evaluationId", $id);
+                $this->redirect('evaluation/editEvaluation/' . $id);
+            } else {
+                $this->session->setNotification("Veuillez saisir un titre pour le sondage", "warning");
+                $this->redirect('survey/createSurvey');
+            }
+        } else {
+
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+}

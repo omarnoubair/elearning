@@ -1,0 +1,77 @@
+    <div class="col-sm-9 col-md-9">
+            <div class="well">
+                 <?php echo ( $this->session->getNotification());?>
+                <h1 class="section-title"> Gérer Mes sondages</h1>
+
+                 <table class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                          <th>Id</th>
+                          <th>Titre</th>
+                          <th>Date de création</th>
+                          <th>Etat</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                          <?php  foreach($userSurveys as $survey) {?>
+                          <tr>
+                              <td><?php echo $survey->id?></td>
+                              <td><?php echo $survey->title ?></td>
+                              <td><?php echo $survey->created?></td>
+                              <td class="labelhint"><?php
+                                      if($survey->state == 0){
+                                          echo '<span class="label label-warning">En Attente</span>';
+                                        $consult = false;
+                                       
+                                        $close = false;
+                                        $publish = true;
+                                          $edit= true;
+                                      }else{ 
+                                          if($survey->state == 1){
+                                            echo '<span class="label label-success">En Ligne</span>';
+                                             $consult = true;
+                                       
+                                        $close = true;
+                                        $publish = false;
+                                         $edit= false;
+                                         
+                                      }else{
+                                            echo '<span class="label label-default">Fermé</span>';
+                                             $consult = true;
+                                       
+                                        $close = false;
+                                        $publish = false;
+                                         $edit= false;
+                                             
+                                      }
+                                      }
+                                      
+                                      ?>
+                              
+                              
+                              </td>
+                         
+                              <td id="manageSurveyActions"> <?php echo $consult?('<a href="'.BASE_URL.'/survey/viewSurvey/'.$survey->id.'"class="btn btn-default" href="#">Consulter</a>'):''?>
+                             <?php echo $close?('<a href="'.BASE_URL.'/survey/closeSurvey/'.$survey->id.'"class="btn btn-warning" href="#">Clôturer</a>'):''?>
+                              <a class="btn btn-danger" href="<?php echo BASE_URL.'/survey/deleteSurvey/'.$survey->id ?>"  onclick="return confirm('Voulez-vous vraiment supprimer le sondage?');">Supprimer</a>
+                             <?php echo $publish?('<a href="'.BASE_URL.'/survey/publishSurvey/'.$survey->id.'"class="btn btn-success" href="#" onclick="return confirm(\'Une fois publié,vous ne pourrez plus le modifier.\nvoulez-vous continuer?\')">Publier</a>'):''?>
+                               <?php echo $edit?('<a href="'.BASE_URL.'/survey/editSurvey/'.$survey->id.'"class="btn btn-info" href="#">Editer</a>'):''?>
+                              </td>
+                          </tr>
+                          <?php }?>
+                       
+                  
+                      </tbody>
+                </table>
+
+       
+    
+                    </div>
+        </div>
+
+            </div>
+        </div>
+  
+</div>
+    </div>

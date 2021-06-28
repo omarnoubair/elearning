@@ -1,0 +1,382 @@
+<?php
+
+class EvaluationController extends controller {
+
+    public function __construct() {
+        parent::__construct();
+        $this->view = new view();
+    }
+
+    public function createEvaluation() {
+        if ($this->session->checkLogin()) {
+            if ($this->session->checkProf()) {
+                // get Courses
+                $coursModel = $this->loadModel("course");
+                $coursList = $coursModel->query("select * from courses where idprof = " . $this->session->user("id"));
+                $this->view->set("coursList", $coursList);
+
+//                $evaluationModel = $this->loadModel("evaluation");
+//                $idEvaluation = $evaluationModel->query("SELECT max(id) +1 as idevaluation FROM evaluations");
+//                $this->view->set("idEvaluation", $idEvaluation);
+
+                $this->view->render('evaluation' . DS . 'createEvaluation', true, true);
+            }
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function createEvaluationAction() {
+        if ($this->session->checkLogin()) {
+            print_r($_POST);
+            // if (isset($_POST['evaluationTitleSubmit'])) {
+            if ((isset($_POST['evaluationTitle']) && !empty($_POST['evaluationTitle']))) {
+                $evaluationModel = $this->loadModel("evaluation");
+                $evaluationModel->save(array("idcourse" => $_POST['course'], "titre" => ucfirst($_POST['evaluationTitle']), "description" => "", "date" => date("Y/m/d")));
+
+                $evaluationId = $evaluationModel->getId();
+                $this->view->set("evaluationId", $evaluationId);
+                $this->redirect('evaluation/editEvaluation/' . $evaluationId);
+            } else {
+                $this->session->setNotification("Veuillez saisir un titre pour l'évaluation", "warning");
+                $this->redirect('evaluation/createEvaluation');
+            }
+            //}
+        } else {
+
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function editEvaluation($id) {
+        if ($this->session->checkLogin()) {
+            $evaluationModel = $this->loadModel('evaluation');
+
+            $idEvaluation = $evaluationModel->query("SELECT max(id) as idevaluation FROM evaluations");
+            $this->view->set("idEvaluation", $idEvaluation);
+
+            $evaluation = $evaluationModel = $evaluationModel->findFirst(array(
+                'fields' => 'evaluations.id as id,evaluations.titre as titre, evaluations.description as description,evaluations.date as date',
+                'conditions' => array("evaluations.id" => $id)
+            ));
+
+            if (!empty($evaluation)) {
+                $all["evaluation"] = $evaluation;
+                $questionModel = $this->loadModel("question");
+                $questions = $questionModel->find(array(
+                    'fields' => 'questions.id as id, questions.question as question',
+                    'conditions' => array("questions.idevaluation" => $id),
+                    'order' => array(
+                        'sc' => 'ASC',
+                        'field' => 'questions.position',
+                    )
+                ));
+
+                $all["questions"] = $questions;
+
+                $this->view->set($all);
+                $this->view->render('evaluation' . DS . 'editEvaluation', true, true);
+            } else {
+                $this->session->setNotification("une erreur est survenue", "warning");
+                $this->redirect('evaluation/createEvaluation');
+            }
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function editEvaluationAction() {
+        if ($this->session->checkLogin()) {
+
+            if (!isset($_POST['evaluation_id'])) {
+                $this->session->setNotification("une erreur est survenue", "warning");
+                $this->redirect('evaluation/manageMyEvaluations');
+            }
+
+            $evaluationModel = $this->loadModel('evaluation');
+            $evaluationExist = $evaluationModel = $evaluationModel->findFirst(array(
+                'fields' => 'evaluations.id as id',
+                'conditions' => array("evaluations.id" => $_POST['evaluation_id'])
+            ));
+            if (empty($evaluationExist)) {
+                $this->session->setNotification("une erreur est survenue", "warning");
+                $this->redirect('evaluation/manageMyEvaluations');
+            }
+            $evaluation_id = $_POST['evaluation_id'];
+
+            if (empty($_POST['question'])) {
+                $this->session->setNotification("la question n'a pas été ajouté", "warning");
+                $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+            }
+            if (empty($_POST['options'])) {
+                $this->session->setNotification("la question n'a pas été ajouté", "warning");
+                $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+            }
+
+            $question = $_POST['question'];
+
+            $ops = explode("\n", $_POST['options']);
+            foreach ($ops as $value) {
+                $options[] = trim($value);
+            }
+            $options = implode(',', $options);
+
+            $data = new stdClass;
+            $data->idevaluation = $evaluation_id;
+            $data->question = $question;
+
+
+            $questionModel = $this->loadModel("question");
+
+            $questionModel->save($data);
+            $lastId = $questionModel->getId();
+            $data = new stdClass;
+            $data->id = $lastId;
+            $data->position = $lastId;
+
+            $questionModel->save($data);
+
+
+            // Add responses to each question 
+            $responseModel = $this->loadModel("response");
+
+            $correctResponse = $_POST['correctResponse'];
+            $dataResponseTrue = new stdClass;
+            $dataResponseTrue->idquestion = $data->id;
+            $dataResponseTrue->response = $correctResponse;
+            $dataResponseTrue->response_correct = true;
+            $responseModel->save($dataResponseTrue);
+
+            $optionsToSave = explode(',', $options);
+            foreach ($optionsToSave as $op) {
+                if ($op != "") {
+                    $dataResponse = new stdClass;
+                    $dataResponse->idquestion = $data->id;
+                    $dataResponse->response = $op;
+                    $dataResponse->response_correct = false;
+                    $responseModel->save($dataResponse);
+                }
+            }
+            $this->session->setNotification("la question a été ajouté avec succès", "success");
+            $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function ajaxOrderQuestions() {
+        $questionModel = $this->loadModel("question");
+
+        foreach ($_POST["sort"] as $position => $id) {
+            $data = new stdClass;
+            $data->id = $id;
+            $data->position = $position;
+
+
+            $questionModel->save($data);
+            echo "succes";
+        }
+    }
+
+    public function deleteQuestion() {
+        if ($this->session->checkLogin()) {
+            $evaluationModel = $this->loadModel("evaluation");
+            $evaluationExist = $evaluationModel->findFirst(array(
+                'fields' => 'evaluations.id as id',
+                'conditions' => array("evaluations.id" => $_POST['evaluation_id'])
+            ));
+            $evaluation_id = $_POST['evaluation_id'];
+            if (empty($evaluationExist)) {
+                $this->session->setNotification("Une erreur est survenue", "warning");
+                $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+            }
+            $questionModel = $this->loadModel("question");
+            $questionExist = $questionModel->findFirst(array(
+                'fields' => 'questions.id as id',
+                'conditions' => array("questions.idevaluation" => $_POST['evaluation_id'], "questions.id" => $_POST['id'])
+            ));
+
+            if (empty($questionExist)) {
+                $this->session->setNotification("Une erreur est survenue", "warning");
+                $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+            }
+            $questionModel->delete($_POST['id']);
+
+            $this->session->setNotification("la question à bien été supprimée", "success");
+            $this->redirect('evaluation/editEvaluation/' . $evaluation_id);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function deleteEvaluation($id) {
+        if ($this->session->checkProf()) {
+            $evaluationModel = $this->loadModel("evaluation");
+            $evaluations = $evaluationModel->delete($id);
+            $this->session->setNotification("Votre requête a été traitée avec succès", "success");
+            $this->redirect("/evaluation/manageMyEvaluations");
+        } else {
+            $this->redirect("error/error403");
+        }
+    }
+
+    // prof
+    public function manageMyEvaluations() {
+
+        if ($this->session->checkLogin()) {
+            $sevaluationModel = $this->loadModel("evaluation");
+            $req = " select evaluations.id as id, evaluations.titre as titre, evaluations.date as date from evaluations, users, courses  "
+                    . "WHERE users.id = " . $this->session->user("id") . " and users.id = courses.idprof and courses.id = evaluations.idcourse";
+            $userEvaluations = $sevaluationModel->query($req);
+
+            $this->view->set("userEvaluations", $userEvaluations);
+            $this->view->render('evaluation' . DS . 'manageMyEvaluations', true, true);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function viewEvaluation($id) {
+        if ($this->session->checkLogin()) {
+            $evaluationModel = $this->loadModel('evaluation');
+            $evaluation = $evaluationModel->findFirst(array(
+                'fields' => 'evaluations.id as id, evaluations.titre as titre, evaluations.date as date',
+                'conditions' => array("evaluations.id" => $id)
+            ));
+
+            if (empty($evaluation)) {
+
+                $this->redirect('error/error404');
+            }
+
+            $questionModel = $this->loadModel("question");
+            $questions = $questionModel->find(array(
+                'fields' => 'questions.id as id, questions.question as question',
+                'conditions' => array("questions.idevaluation" => $id),
+                'order' => array(
+                    'sc' => 'ASC',
+                    'field' => 'questions.position',
+                )
+            ));
+
+            if (empty($questions)) {
+                $this->redirect('error/error404');
+            }
+            $nbR = 0;
+            foreach ($questions as $q) {
+                $ResponseModel = $this->loadModel("response");
+                $responses[$nbR] = $ResponseModel->query("select responses.id as id, responses.idquestion as question_id, responses.response as response, responses.response_correct as response_correct"
+                        . " from responses where responses.idquestion = " . $q->id . " order by rand()");
+
+
+                if (empty($responses)) {
+                    $this->redirect('error/error404');
+                }
+                $nbR++;
+
+
+                $totaleReps = count($responses);
+                $data = new stdClass;
+            }
+
+            $all["evaluation"] = $evaluation;
+            $all["questions"] = $questions;
+            $all["responses"] = $responses;
+            $this->view->set($all);
+            $this->view->render('evaluation' . DS . 'viewEvaluation', true);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function submitResponse() {
+
+        if ($this->session->checkLogin()) {
+            $evaluationModel = $this->loadModel('evaluation');
+            $evaluation = $evaluationModel->findFirst(array(
+                'fields' => 'evaluations.id as id, evaluations.titre as titre, evaluations.date as date',
+                'conditions' => array("evaluations.id" => $_POST['evaluation_id'])
+            ));
+
+            if (empty($evaluation)) {
+                $this->redirect('error/error404');
+            }
+            $questionModel = $this->loadModel("question");
+            $questions = $questionModel->find(array(
+                'fields' => 'questions.id as id, questions.question as question',
+                'conditions' => array("questions.idevaluation" => $_POST['evaluation_id']),
+                'order' => array(
+                    'sc' => 'ASC',
+                    'field' => 'questions.position',
+                )
+            ));
+            if (empty($questions)) {
+                $this->redirect('error/error404');
+            }
+            $nbR = 0;
+            $grade = 0;
+            $nbQuestions = count($questions);
+            foreach ($questions as $q) {
+                $ResponseModel = $this->loadModel("response");
+                $responses[$nbR] = $ResponseModel->query("select responses.id as id, responses.idquestion as question_id, responses.response as response, responses.response_correct as response_correct"
+                        . " from responses where responses.idquestion = " . $q->id . "  and response_correct = 1");
+                if (empty($responses)) {
+                    $this->redirect('error/error404');
+                }
+
+
+
+                $choosenR = $_POST['q'][$q->id];
+                foreach ($responses[$nbR] as $op[$nbR]) {
+                    if ($op[$nbR]->response == $choosenR) {
+                        $grade++;
+                    }
+                }
+
+                $nbR++;
+            }
+
+            $average = $grade / $nbQuestions;
+            $averagePercentage = round($average * 100, 0);
+
+            $data = new stdClass;
+            $data->iduser = $this->session->user("id");
+            $data->idevaluation = $_POST['evaluation_id'];
+            $data->note = $averagePercentage;
+            $data->date = date("Y/m/d");
+            $responseModel = $this->loadModel("studentevaluation");
+            $responseModel->save($data);
+
+            $this->session->setNotification("Vos réponses ont bien été prises en compte", "success");
+            $this->view->set("grade", $grade);
+            $this->view->set("nbQuestions", $nbQuestions);
+            $this->view->render('evaluation' . DS . 'viewResult', true, true);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function historicEvaluation() {
+        if ($this->session->checkLogin()) {
+            $sevaluationModel = $this->loadModel("evaluation");
+            $req = " SELECT e.titre, se.note, se.date FROM studentevaluations as se, evaluations as e"
+                    . " WHERE e.id = se.idevaluation and se.iduser = " . $this->session->user("id");
+            $historicEvaluations = $sevaluationModel->query($req);
+
+            $this->view->set("historicEvaluations", $historicEvaluations);
+            $this->view->render('evaluation' . DS . 'historicEvaluation', true, true);
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+}

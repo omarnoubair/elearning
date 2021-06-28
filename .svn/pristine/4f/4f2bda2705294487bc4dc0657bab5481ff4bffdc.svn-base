@@ -1,0 +1,28 @@
+<?php
+
+class CourseController extends Controller{
+
+    
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function createCourse() {
+//        if($this->session->checkProf()) {
+//            
+//        }
+    }
+    
+    public function manageMyCourse() {
+        
+    }
+    
+//    public function courseList(){
+//        $courseModel = $this->loadModel("course");
+//        $courseList = $courseModel->find("*");
+//        $this->view->set("courseList", $courseList);
+//        $this->view->renderView('course' . DS . 'courseList'); // index c'est une vue
+//    }
+}
+
+?>

@@ -1,0 +1,121 @@
+<?php
+
+class UserController extends Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function index() {
+
+
+        if ($this->session->checkLogin()) {
+            $this->view->render('user' . DS . 'index', true, true);
+        } else {
+            //$this->redirect("user/login"); // rediriger vers une autre page de login
+            $this->redirect(''); // rester dans la même page
+        }
+    }
+
+    public function login() {
+        if (!$this->session->checkLogin()) {
+
+            $this->view->render('user' . DS . 'login');
+        } else {
+
+            //$this->view->render('user' . DS . 'index');
+            $this->view->render('user' . DS . 'index', true, true);
+        }
+    }
+
+    public function loginAction() {
+
+        if (isset($_POST['email']) && !empty($_POST['email']) && isset($_POST['password']) && !empty($_POST['password'])) {
+            $userModel = $this->loadModel('user');
+
+
+            $obj = $userModel->findFirst(array(
+                'fields' => 'users.id as id, users.pseudo as pseudo,users.password as password,users.role as role',
+                'conditions' => array("users.mail" => strtolower($_POST['email']), "users.password" => md5($_POST['password']))
+            ));
+
+            if (!empty($obj)) {
+
+                $this->session->write("user", $obj);
+                $this->redirect("user/index");
+            }
+        }
+        $this->session->setNotification("Nom d'utilisateur ou mot de passe incorrect", "danger");
+        //$this->redirect("user/login"); // rediriger vers une autre page de login
+        $this->redirect(''); // rester dans la même page
+    }
+
+    public function logoutAction() {
+        $this->session->delete('user');
+        $this->redirect('');
+    }
+
+    public function register() {
+        if (!$this->session->checkLogin()) {
+            $this->view->render('user' . DS . 'register');
+        } else {
+
+
+            $this->view->render('user' . DS . 'index', true, true);
+        }
+    }
+
+//    public function ajaxCheckUsername() {
+//        $userModel = $this->loadModel('user');
+//
+//        $result = $userModel->findFirst(array('fields' => 'users.id as id', 'conditions' => array("users.username" => strtolower($_REQUEST['username']))));
+//        if (!empty($result)) {
+//            echo "false";
+//        } else {
+//            echo "true";
+//        }
+//    }
+    //???
+    public function ajaxCheckEmail() {
+        $userModel = $this->loadModel('user');
+        $result = $userModel->findFirst(array('fields' => 'users.id as id', 'conditions' => array("users.mail" => strtolower($_REQUEST['email']))));
+        if (!empty($result)) {
+            echo "false";
+        } else {
+            echo "true";
+        }
+    }
+
+    public function registerAction() {
+        print_r($_POST);
+        if (isset($_POST['submit'])) {
+
+            $firstname = !empty($_POST['firstname']) ? strtolower($_POST['firstname']) : $error[] = true;
+            $lastname = !empty($_POST['lastname']) ? strtolower($_POST['lastname']) : $error[] = true;
+            $email = !empty($_POST['email']) ? strtolower($_POST['email']) : $error[] = true;
+            $password = !empty($_POST['password']) ? md5($_POST['password']) : $error[] = true;
+            $pseudo = !empty($_POST['pseudo']) ? strtolower($_POST['pseudo']) : $error[] = true;
+            $userModel = $this->loadModel('user');
+
+            $checkEmail = $userModel->findFirst(array('fields' => 'users.id as id', 'conditions' => array("users.mail" => $email)));
+            $error[] = !empty($checkEmail) ? true : false; // if chckemail not empty so error = true
+
+            if (!in_array(true, $error)) {
+
+                $userModel->save(array("id" => NULL, "role" => 1, "pseudo" => $pseudo, "password" => $password, "nom" => $lastname,
+                    "prenom" => $firstname, "mail" => $email, "tel" => "", "photo" => ""
+                ));
+
+                $this->session->setNotification("Votre compte à été bien crée", "success");
+                $this->redirect("user/login");
+            }
+        }
+        $this->session->setNotification("Une ou plusieurs erreurs sont survenues lors de la création de votre compte", "danger");
+        $this->redirect('');
+    }
+
+    
+    
+
+
+}

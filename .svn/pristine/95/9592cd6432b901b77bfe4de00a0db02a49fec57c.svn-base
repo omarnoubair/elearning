@@ -1,0 +1,20 @@
+
+<?php
+
+class IndexController extends Controller {
+   
+     public function __construct()
+        {
+        parent::__construct();
+        //$this->view = new view();
+       }
+    
+    public function index() {
+        
+        $this->view->setTitle("Learn Sharing");
+     
+        $this->view->render('home' . DS . 'index');
+      
+    }
+
+}

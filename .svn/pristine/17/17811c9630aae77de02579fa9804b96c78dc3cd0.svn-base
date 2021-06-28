@@ -1,0 +1,199 @@
+<?php
+
+class CourseController extends Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function createCourse() {
+        if ($this->session->checkLogin()) {
+            if ($this->session->checkProf()) {
+                // get Categories
+                $categorieModel = $this->loadModel("categorie");
+                $catList = $categorieModel->query("select * from categories");
+                $this->view->set("catList", $catList);
+
+                $this->view->render('course' . DS . 'createCourse', true, true);
+            }
+        } else {
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function createCourseAction() {
+
+
+        if ($this->session->checkLogin()) {
+            print_r($_POST);
+            $courseModel = $this->loadModel("course");
+            $titre = !empty($_POST['titre']) ? strtolower($_POST['titre']) : $error[] = true . 'NoTitre';
+            $categorie = !empty($_POST['categorie']) ? $_POST['categorie'] : $error[] = true . 'NoCategorie';
+            $description = !empty($_POST['description']) ? strtolower($_POST['description']) : $error[] = true . 'NoDescription';
+            $document = !empty($_POST['document']) ? $_POST['document'] : $error[] = true . 'noDocument';
+            $video = !empty($_POST['video']) ? $_POST['video'] : $error[] = true . 'NoVideo';
+            $niveau = !empty($_POST['niveau']) ? $_POST['niveau'] : $error[] = true . 'NoNiveau';
+
+            $idGenerated = $this->generateRandomString();
+
+            $courseModel->save(array("idcategorie" => $categorie, "idprof" => $this->session->user("id"),
+                "titre" => $titre, "description" => $description, "date" => date("Y/m/d"), "doc" => $idGenerated . $document,
+                "video" => $video, "lvl" => $niveau
+            ));
+            $this->redirect('user/index');
+        } else {
+
+            $this->session->setNotification("Vous devez vous connecter pour accéder à cette page", "info");
+            $this->redirect('user/login');
+        }
+    }
+
+    public function updateCourseAction($id) {
+            $courseModel = $this->loadModel("course");
+            $titre =  strtolower($_POST['titre']);
+            $categorie = $_POST['categorie'];
+            $description = strtolower($_POST['description']);
+            $document = !empty($_POST['document']) ? $_POST['document'] : $error[] = true . 'noDocument';
+            $video = !empty($_POST['video']) ? $_POST['video'] : $error[] = true . 'NoVideo';
+            $niveau = !empty($_POST['niveau']) ? $_POST['niveau'] : $error[] = true . 'NoNiveau';
+
+            $req = 'UPDATE courses as c SET c.doc = "'. $document .'" , c.idcategorie = "' . $categorie . '", c.titre = "' . $titre . '" , c.description = "' . $description . '", c.video ="' .  $video . '", c.lvl = ' . $niveau . '  WHERE c.id = ' . $id;
+            $courseModel->query($req);
+
+            echo $req;
+            $this->redirect('course/courseList');
+        } 
+    //liste des cours abonnée
+    public function courseAbonnee() {
+        $courseModel = $this->loadModel("course"); // nom  de la classe course
+        $courseList = $courseModel->query('SELECT * FROM courses as c, followers as f, users as u, categories as ca WHERE f.iduser = ' . $this->session->user("id") . ' and f.iduser= u.id and f.idcourse = c.id and c.idcategorie = ca.id');
+
+        $this->view->set("coursAbonnee", $courseList);
+
+        $this->view->render('course' . DS . 'follow', true, true); // index c'est une vue
+    }
+    //liste des cours 
+    public function allcourse() {
+        $courseModel = $this->loadModel("course"); // nom  de la classe course
+        $allcourse = $courseModel->query('SELECT c.id , c.titre , ca.categorie , u.nom , c.lvl FROM courses as c, users as u, categories as ca WHERE u.id = c.idprof and c.idcategorie = ca.id');
+        $this->view->set("allcourse", $allcourse);
+
+        $this->view->render('course' . DS . 'allcours', true, true); // index c'est une vue
+    }
+    public function showCourseStudent($id) {
+        $iduser = $this->session->user("id");   
+        $courseModel = $this->loadModel("course"); // nom  de la classe course
+        //$course = $courseModel->query('SELECT * FROM courses as c, users as u WHERE c.id = ' . $id . ' and  u.id = c.idprof');
+        $course = $courseModel->query('SELECT c.id as idcourse, u.nom as nom, c.titre as titre, c.description as description,'
+                . 'c.video as video, c.doc as doc, c.lvl as lvl FROM courses as c, users as u WHERE c.id = ' . $id . ' and  u.id = c.idprof');
+        
+        $abo = $courseModel->query('SELECT COUNT(*)as n FROM courses as c , users as u , followers as f where f.iduser =  ' . $iduser . ' and f.idcourse = ' . $id . ' and c.id = ' . $id . ' and u.id = ' . $iduser );
+        $this->view->set("showCourse", $course);
+        $this->view->set("abo", $abo);
+        $this->view->render('course' . DS . 'course', true, true); // index c'est une vue
+    }
+
+    function generateRandomString($length = 10) {
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
+    public function abonnement($id){
+        $iduser = $this->session->user("id");   
+        $courseModel = $this->loadModel("course");
+        $aboModel = $this->loadModel("course");
+        $abo = $courseModel->query('SELECT COUNT(*)as n FROM courses as c , users as u , followers as f where f.iduser =  ' . $iduser . ' and f.idcourse = ' . $id . ' and c.id = ' . $id . ' and u.id = ' . $iduser );
+        foreach ($abo as $t){
+        $n = $t->n;
+        }
+        //echo $n . ', '. $iduser . ', ' . $id ;
+        $req = 'INSERT INTO followers (iduser, idcourse) VALUES ('. $iduser . ', ' . $id .')';
+       //echo $req;
+        if($n == 0){
+           // $aboModel->save(array("iduser" => $iduser, "idcourse" => $id));
+            $aboModel->query2($req);   
+        //echo 's abo';
+            
+        }
+        //echo '1';
+        if($n == 1){
+           $courseModel->query2('DELETE FROM followers WHERE iduser = '. $iduser . ' and idcourse = ' . $id );
+        
+            
+        //echo ' se desabo';
+        }
+        $course = $courseModel->query('SELECT c.id as idcourse, u.nom as nom, c.titre as titre, c.description as description,'
+                . 'c.video as video, c.doc as doc, c.lvl as lvl FROM courses as c, users as u WHERE c.id = ' . $id . ' and  u.id = c.idprof');
+        
+        $abo = $courseModel->query('SELECT COUNT(*)as n FROM courses as c , users as u , followers as f where f.iduser =  ' . $iduser . ' and f.idcourse = ' . $id . ' and c.id = ' . $id . ' and u.id = ' . $iduser );
+        $this->view->set("showCourse", $course);
+        $this->view->set("abo", $abo);
+        $this->view->render('course' . DS . 'course', true, true);
+    }
+    public function signaler($id){
+        $iduser = $this->session->user("id");   
+        $courseModel = $this->loadModel("course");
+        $aboModel = $this->loadModel("course");
+        $abo = $courseModel->query('SELECT COUNT(*)as n FROM courses as c , users as u , reports as f where f.iduser =  ' . $iduser . ' and f.idcourse = ' . $id . ' and c.id = ' . $id . ' and u.id = ' . $iduser );
+        foreach ($abo as $t){
+        $n = $t->n;
+        }
+       // echo $n . ', '. $iduser . ', ' . $id ;
+        $req = 'INSERT INTO reports (iduser, idcourse) VALUES ('. $iduser . ', ' . $id .')';
+       //echo $req;
+        if($n == 0){
+           // $aboModel->save(array("iduser" => $iduser, "idcourse" => $id));
+            $aboModel->query2($req);   
+        //echo 's abo';
+            
+        }
+//        echo '1';
+        if($n == 1){
+            echo "<script>alert(\"Vous avez deja signaler ce cours\")</script>"; 
+//           $courseModel->query2('DELETE FROM followers WHERE iduser = '. $iduser . ' and idcourse = ' . $id );
+        
+            
+//        echo ' se desabo';
+        }
+        $course = $courseModel->query('SELECT c.id as idcourse, u.nom as nom, c.titre as titre, c.description as description,'
+                . 'c.video as video, c.doc as doc, c.lvl as lvl FROM courses as c, users as u WHERE c.id = ' . $id . ' and  u.id = c.idprof');
+        
+        $abo = $courseModel->query('SELECT COUNT(*)as n FROM courses as c , users as u , followers as f where f.iduser =  ' . $iduser . ' and f.idcourse = ' . $id . ' and c.id = ' . $id . ' and u.id = ' . $iduser );
+        $this->view->set("showCourse", $course);
+        $this->view->set("abo", $abo);
+        $this->view->render('course' . DS . 'course', true, true);
+    }
+
+
+    public function moncourse($id) {
+        $courseModel = $this->loadModel("course");
+        $moncourse = $courseModel->query("select c.id as id , c.lvl as lvl , c.doc as doc , c.video as video , c.titre as titre , c.description as description , c.idcategorie as categorie from courses as c , categories as ca where c.id = " . $id . " and c.idcategorie = ca.id");
+
+        $this->view->set("moncourse", $moncourse);
+
+        $categorieModel = $this->loadModel("categorie");
+        $catList = $categorieModel->query("select * from categories");
+        $this->view->set("catList", $catList);
+
+        $this->view->render('course' . DS . 'moncours', true, true); // index c'est une vue
+    }
+
+    public function courseList() {
+        $courseModel = $this->loadModel("course");
+        $id = $this->session->read('user')->id;
+
+        $courseList = $courseModel->query("select c.id as id , c.titre as titre , c.date as date , ca.categorie as categorie , (select count(re.idcourse) from reports as re where idcourse= c.id) as Nb from users as u , courses as c , categories as ca where u.id = " . $id . " and u.id = c.idprof and c.idcategorie = ca.id");
+
+        $this->view->set("courseList", $courseList);
+        $this->view->render('course' . DS . 'courseList', true, true); // index c'est une vue
+    }
+
+}
+
+?>

@@ -1,0 +1,70 @@
+<html>
+
+    <link href="<?php echo CSS . '/video.css' ?>" rel="stylesheet" type="text/css"/>
+    <body>
+
+        <?php
+            function ClickableLinksANDyoutubeIframe($text) {
+
+        $v = $text;
+        $text = html_entity_decode($text);
+        $text = strip_tags($text);
+        $c = "youtube";
+        $v = @eregi_replace('(((f|ht){1}tp://)[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '<a href="\\1" target=_blank>\\1</a>', $v);
+        $v = @eregi_replace('(((f|ht){1}tps://)[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '<a href="\\1" target=_blank>\\1</a>', $v);
+        $v = @eregi_replace('([[:space:]()[{}])(www.[-a-zA-Z0-9@:%_\+.~#?&//=]+)', '\\1<a href="http://\\2" target=_blank>\\2</a>', $v);
+        $v = @eregi_replace('([_\.0-9a-z-]+@([0-9a-z][0-9a-z-]+\.)+[a-z]{2,3})', '<a href="mailto:\\1" target=_blank>\\1</a>', $v);
+        $v = preg_replace('#<a href="https?://www.' . $c . '.*?>([^>]*)</a>#i', '$1', $v);
+
+        $v = @preg_replace("#http://(www\.)?youtube\.com/watch\?v=([^ &\n]+)(&.*?(\n|\s))?#i", '<div align="center"><object width="480" height="390"><param name="movie" value="http://www.youtube.com/v/$2"></param><embed src="http://www.youtube.com/v/$2" type="application/x-shockwave-flash" width="480" height="390"></embed></object></div>', $v);
+
+        $v = @preg_replace("#https://(www\.)?youtube\.com/watch\?v=([^ &\n]+)(&.*?(\n|\s))?#i", '<div align="center"><object width="480" height="390"><param name="movie" value="http://www.youtube.com/v/$2"></param><embed src="http://www.youtube.com/v/$2" type="application/x-shockwave-flash" width="480" height="390"></embed></object></div>', $v);
+        return $v;
+    }
+        
+        
+        foreach ($showCourse as $t) {
+            echo $t->id;
+            echo $t->titre;
+            echo $t->description;
+            echo $t->video . '<br>';
+            echo ROOT . DS . 'docs' . DS . $t->doc . '<br>';
+            echo 'http://localhost/15m1g4/docs/' . $t->doc;
+        }
+        ?>
+        <h1><?php echo $t->titre . '<br>' ?></h1>
+
+        <div class="col-md-4">
+
+            <?php echo $t->description; ?>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="vid">
+                        <div class="container">
+                            <div class="row">      
+                            </div><!--.col -->
+
+                            <div class="col-md-6">
+                                <div class="vid">
+                                    <?php 
+                                    $urlVideo = ClickableLinksANDyoutubeIframe($t->video);
+                                    echo $urlVideo;
+                                    ?>
+                            </div><!--.col -->
+
+                        </div><!--./row -->
+
+                    </div><!--./container -->
+                </div>   
+            </div>
+        </div>
+    </div>
+
+    <?php echo '<br> <br>'; ?>
+    <iframe src="<?php echo 'http://localhost/15m1g4/docs/' . $t->doc ?>" width="700px" height="600px" />
+
+</body>
+</html> 

@@ -1,0 +1,77 @@
+<?php
+
+class UserController extends Controller {
+
+    public function __construct() {
+        parent::__construct();
+    }
+
+    public function index() {
+
+
+        if ($this->session->checkLogin()) {
+            $this->view->render('user' . DS . 'index', true, false, false);
+        } else {
+            //$this->redirect("user/login"); // rediriger vers une autre page de login
+            $this->redirect(''); // rester dans la même page
+        }
+    }
+
+    public function login() {
+        if (!$this->session->checkLogin()) {
+
+            $this->view->render('user' . DS . 'login');
+        } else {
+
+            //$this->view->render('user' . DS . 'index');
+            $this->view->render('user' . DS . 'index', true, true);
+        }
+    }
+
+    public function loginAction() {
+
+        if (isset($_POST['pseudo']) && !empty($_POST['pseudo']) && isset($_POST['password']) && !empty($_POST['password'])) {
+            $userModel = $this->loadModel('user');
+
+
+            $obj = $userModel->findFirst(array(
+                'fields' => 'users.iduser as id, users.pseudo as pseudo,users.password as password,users.role as role',
+                'conditions' => array("users.pseudo" => strtolower($_POST['pseudo']), "users.password" => $_POST['password'])
+            ));
+
+            if (!empty($obj)) {
+
+                $this->session->write("user", $obj);
+                $this->redirect("user/index");
+            }
+        }
+        $this->session->setNotification("Nom d'utilisateur ou mot de passe incorrect", "danger");
+        //$this->redirect("user/login"); // rediriger vers une autre page de login
+        $this->redirect(''); // rester dans la même page
+//        if($_POST['pseudo'] == 'admin' && $_POST['password'] == 'admin'){
+//            $this->session->write("isLoged", true);
+//            $this->session->write("user", array('name' => 'zakaria', 'username' => 'admin' ));
+//            $this->redirect('administration/index');
+//          
+//        }
+//        else {
+//            $this->redirect('');
+//        }
+    }
+
+    public function logoutAction() {
+        $this->session->delete('user');
+        $this->redirect('');
+    }
+
+    public function register() {
+        if (!$this->session->checkLogin()) {
+            $this->view->render('user' . DS . 'register');
+        } else {
+
+
+            $this->view->render('user' . DS . 'index', true, true);
+        }
+    }
+
+}

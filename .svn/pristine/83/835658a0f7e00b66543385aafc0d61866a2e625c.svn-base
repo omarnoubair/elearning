@@ -1,0 +1,40 @@
+<div class="col-sm-9 col-md-9">
+    <div class="well">
+        <?php echo ( $this->session->getNotification()); ?>
+        <h1 class="section-title"> Gérer Mes évaluations</h1>
+
+        <table class="table table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Titre</th>
+                    <th>Date de création</th>
+                    <th colspan="2">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($userEvaluations as $eva) { ?>
+                    <tr>
+                        <td><?php echo $eva->id ?></td>
+                        <td><?php echo $eva->titre ?></td>
+                        <td><?php echo $eva->date ?></td>
+                        <td class="text-center" width="30px"><a href="<?php echo BASE_URL . '/evaluation/editEvaluation/' . $eva->id ?>" class="btn btn-info btn-xs"><span class="glyphicon glyphicon-edit"></span> Modifier</a></td><td><a href="<?php echo BASE_URL . '/evaluation/deleteEvaluation/' . $eva->id ?>" class="btn btn-danger btn-xs" onclick="return confirm('Voulez-vous vraiment supprimer cette évaluation ?');"><span class="glyphicon glyphicon-remove"></span> Supprimer</a></td>
+
+                </td>
+                </tr>
+            <?php } ?>
+
+
+            </tbody>
+        </table>
+
+
+
+    </div>
+</div>
+
+</div>
+</div>
+
+</div>
+</div>

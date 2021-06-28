@@ -1,0 +1,75 @@
+<div class="body-container">
+    <div class="admin-panel-container">
+
+
+        <div class="col-sm-3 col-md-3">
+            <div class="panel-group" id="accordion">
+
+                <?php if ($this->session->checkAdmin()) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour"><span class="glyphicon glyphicon-file">
+                                    </span>Administration</a>
+                            </h4>
+                        </div>
+                        <div id="collapseFour" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <table class="table">
+                                    <tr>
+                                        <td>
+                                            <span class=""></span><a href="<?php echo BASE_URL . '/administration/manageProfs' ?>">Gérer les professeurs</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=""></span><a href="<?php echo BASE_URL . '/administration/manageStudents' ?>">Gérer les étudiants</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=""></span><a href="<?php echo BASE_URL . '/administration/manageCategories' ?>">Gérer les catégories</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span class=""></span><a href="<?php echo BASE_URL . '/administration/manageCategories' ?>">Gérer les catégories</a>
+                                        </td>
+                                    </tr>
+
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree"><span class="glyphicon glyphicon-user">
+                                </span>Mon Compte</a>
+                        </h4>
+                    </div>
+                    <div id="collapseThree" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <table class="table">
+                                <tr>
+                                    <td>
+                                        <a href="<?php echo BASE_URL . '/user/changePassword' ?>">Changer le mot de passe</a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <span class="glyphicon glyphicon-trash text-danger"></span><a href="#" class="text-danger">
+                                            Supprimer le compte</a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>

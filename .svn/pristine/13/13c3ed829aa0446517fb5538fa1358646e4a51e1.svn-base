@@ -1,0 +1,49 @@
+<html>
+
+    <link href="<?php echo CSS . '/video.css' ?>" rel="stylesheet" type="text/css"/>
+    <body>
+
+        <?php
+        foreach ($showCourse as $t) {
+            echo $t->id;
+            echo $t->titre;
+            echo $t->description;
+            echo $t->video . '<br>';
+            echo ROOT . DS . 'docs' . DS . $t->doc . '<br>';
+            echo 'http://localhost/15m1g4/docs/' . $t->doc;
+        }
+        ?>
+        <h1><?php echo $t->titre . '<br>' ?></h1>
+
+        <div class="col-md-4">
+
+            <?php echo $t->description; ?>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="vid">
+                        <div class="container">
+                            <div class="row">      
+                            </div><!--.col -->
+
+                            <div class="col-md-8">
+                                <div class="vid">
+<iframe width="560" height="315" src="https://www.youtube.com/watch?v=-VMFdpdDYYA" frameborder="0" allowfullscreen></iframe>                                </div><!--./vid -->
+
+                            </div><!--.col -->
+
+                        </div><!--./row -->
+
+                    </div><!--./container -->
+                </div>   
+            </div>
+        </div>
+    </div>
+
+    <?php echo '<br> <br>'; ?>
+    <iframe src="<?php echo 'http://localhost/15m1g4/' . $t->doc ?>" width="700px" height="600px" />
+
+</body>
+</html> 
